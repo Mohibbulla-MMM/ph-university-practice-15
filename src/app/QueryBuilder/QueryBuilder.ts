@@ -43,7 +43,7 @@ class QueryBuilder<T> {
   sort() {
     const sort =
       (this?.query?.sort as string)?.split(",").join(" ") || "-createAt";
-    console.log(sort);
+    // console.log(sort);
     this.modelQuery = this.modelQuery.sort(sort as string);
     return this;
   }
@@ -62,7 +62,7 @@ class QueryBuilder<T> {
       (this?.query?.fields as string)?.split(",").join(" ") || "-__v";
     //   `${this?.query?.fields}`?.split(",").join(" ") || "-__v";
     //   `${this?.query?.fields}`?.replace(/,/g, " ") || "-__v";
-    console.log(fields);
+    // console.log(fields);
     this.modelQuery = this.modelQuery.select(fields);
     return this;
   }

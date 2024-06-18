@@ -124,13 +124,13 @@ const singleStudentDeleted = async (id: string) => {
     }
 
     const userId = student?.user;
-    console.log({ userId });
+    // console.log({ userId });
     const user = await User.findByIdAndUpdate(
       userId,
       { isDeleted: true },
       { new: true, session }
     );
-    console.log({ user });
+    // console.log({ user });
     if (!user) {
       throw new AppError(httpStatus.BAD_REQUEST, "Failed to deleted User !");
     }
@@ -187,7 +187,7 @@ const singleStudentUpdate = async (id: string, payload: Partial<TStudent>) => {
       }
     }
 
-    console.log(modifyUpdatedData);
+    // console.log(modifyUpdatedData);
 
     const result = await Student.findByIdAndUpdate(id, modifyUpdatedData, {
       new: true,

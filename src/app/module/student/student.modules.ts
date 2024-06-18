@@ -122,7 +122,7 @@ studentSchema.pre("findOneAndUpdate", async function (next) {
   const student = await Student.findOne(id);
   // console.log(student);
   if (!student) {
-    console.log("inside call");
+    // console.log("inside call");
     return next(new Error("Student dosen't exists"));
   }
   next();

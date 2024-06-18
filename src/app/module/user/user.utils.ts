@@ -86,7 +86,7 @@ const findLastFaculty = async () => {
 const generateFacultyId = async () => {
   let currentId = (0).toString();
   const lastFacultyId = await findLastFaculty();
-  console.log({ lastFacultyId });
+  // console.log({ lastFacultyId });
   if (lastFacultyId) {
     currentId = lastFacultyId;
   }
