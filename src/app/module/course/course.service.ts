@@ -132,6 +132,7 @@ const updateCourseInToDB = async (id: string, payload: Partial<TCourse>) => {
           session,
         }
       );
+
       if (!deletedPreRequisiteCourses) {
         throw new AppError(httpStatus.BAD_REQUEST, "Failed to update course!");
       }
@@ -145,11 +146,11 @@ const updateCourseInToDB = async (id: string, payload: Partial<TCourse>) => {
         id,
         {
           $addToSet: {
-            preRequisiteCourses: {$each: newPreRequisites},
+            preRequisiteCourses: { $each: newPreRequisites },
           },
         },
         {
-          id: false,
+          _id: 0,
           new: true,
           runValidators: true,
           session,
@@ -164,9 +165,10 @@ const updateCourseInToDB = async (id: string, payload: Partial<TCourse>) => {
     await session.commitTransaction();
     await session.endSession();
 
-    const result = await Course.findById(id).populate(
-      "preRequisiteCourses.course"
-    );
+    const result = await Course.findById(id);
+    // .populate(
+    //   "preRequisiteCourses.course"
+    // );
 
     return result;
   } catch (err) {
@@ -186,16 +188,37 @@ const deleteCourseFromDB = async (id: string) => {
   return result;
 };
 
+// assignment faculty with coruse
 const assignFacultyWithCourseIntoDB = async (
   id: string,
   payload: Partial<TCourseFacuty>
 ) => {
   const result = await CourseFaculty.findByIdAndUpdate(
     id,
-    { $addToSet: { faculties: { $each: payload } } },
+    {
+      course: id,
+      $addToSet: { faculties: { $each: payload } },
+    },
     { upsert: true, new: true }
   );
+  return result;
+};
 
+// removed faculty with coruse
+const removeFacultyFromCourseIntoDB = async (
+  id: string,
+  payload: Partial<TCourseFacuty>
+) => {
+  const result = await CourseFaculty.findByIdAndUpdate(
+    id,
+    {
+      $pull: { faculties: { $in: payload } },
+    },
+    {
+      upsert: true,
+      new: true,
+    }
+  );
   return result;
 };
 
@@ -206,4 +229,5 @@ export const CourseServices = {
   updateCourseInToDB,
   deleteCourseFromDB,
   assignFacultyWithCourseIntoDB,
+  removeFacultyFromCourseIntoDB,
 };

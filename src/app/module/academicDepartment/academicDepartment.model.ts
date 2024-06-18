@@ -5,8 +5,9 @@ import AppError from "../../errors/AppError";
 const academicDepartmentSchema = new Schema<TAcademicDepartment>({
   name: {
     type: String,
-    required: true,
     unique: true,
+    trim: true,
+    required: true,
   },
   academicFaculty: {
     type: Schema.Types.ObjectId,

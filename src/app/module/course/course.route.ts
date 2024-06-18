@@ -23,7 +23,17 @@ router.patch(
 
 router.delete("/:id", CourseControllers.deletedCourse);
 
-router.put("/:id/assign-faculty", CourseControllers.assignFacultyWithCourse);
+router.put(
+  "/:id/assign-faculty",
+  validateRequest(CourseValidation.updatedCourseWithFacyltySchema),
+  CourseControllers.assignFacultyWithCourse
+);
+
+router.delete(
+  "/:id/remove-faculty",
+  validateRequest(CourseValidation.updatedCourseWithFacyltySchema),
+  CourseControllers.removeFacultyFromCourse
+);
 
 // router.patch("/:id", CourseControllers.updatedCourse);
 export const CourseRouter = router;

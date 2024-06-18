@@ -4,12 +4,15 @@ import validateRequest from "../../utils/validateRequest";
 import { studentSchemaValidation } from "../student/student.validation";
 import { FacultySchemaValidation } from "../faculty/faculty.validation";
 import { AdminSchemaValidation } from "../admin/admin.validation";
+import auth from "../../middleWare/auth";
+import { USER_ROLE } from "./user.constant";
 
 const router = express.Router();
 
 // created users
 router.post(
-  "/create-user",
+  "/create-student",
+  auth(USER_ROLE.admin),
   validateRequest(studentSchemaValidation),
   UserControllers.createStudent
 );
@@ -17,6 +20,7 @@ router.post(
 // created Admin
 router.post(
   "/create-admin",
+  // auth(USER_ROLE.admin),
   validateRequest(AdminSchemaValidation),
   UserControllers.createAdmin
 );
@@ -24,11 +28,19 @@ router.post(
 // created faculty
 router.post(
   "/create-faculty",
+  auth(USER_ROLE.admin),
   validateRequest(FacultySchemaValidation),
   UserControllers.createFacultry
 );
 
 // find all users
-router.get("/", UserControllers.findAllUsers);
+router.get("/", auth("faculty", "admin"), UserControllers.findAllUsers);
+
+// get me
+router.get(
+  "/me",
+  auth("admin", "faculty", "student"),
+  UserControllers.findMeUsers
+);
 
 export const UserRouter = router;

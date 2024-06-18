@@ -12,22 +12,30 @@ import {
 } from "./user.utils";
 import AppError from "../../errors/AppError";
 import httpStatus from "http-status";
-
 import { TAcademicSemester } from "../academicSemester/academicSemester.interface";
 import { Admin } from "../admin/admin.model";
 import { Faculty } from "../faculty/faculty.model";
+import { USER_ROLE } from "./user.constant";
+import jwt, { JwtPayload } from "jsonwebtoken";
+
+import { tokenVerify } from "../auth/auth.utils";
 
 // create sutdent
 const createStudent = async (password: string, payload: TStudent) => {
   const userData: Partial<TUser> = {};
-  userData.password = password || config.default_password;
+  userData.password = password || config?.default_password;
 
   const admissionSemester = await AcademicSemester.findById(
     payload.admissionSemester
   );
 
+  if (!admissionSemester) {
+    throw new AppError(httpStatus.NOT_FOUND, "Admision semester not found");
+  }
   userData.id = await generateStudentId(admissionSemester as TAcademicSemester);
-  userData.role = "student";
+  userData.role = USER_ROLE?.student;
+  userData.email = payload?.email;
+  console.log(userData.id);
 
   // session start
   const session = await mongoose.startSession();
@@ -36,7 +44,7 @@ const createStudent = async (password: string, payload: TStudent) => {
     session.startTransaction();
     // session-1
     const newUser = await User.create([userData], { session });
-
+    console.log({ newUser });
     if (!newUser.length) {
       throw new AppError(httpStatus.BAD_REQUEST, "User create faild!");
     }
@@ -46,6 +54,7 @@ const createStudent = async (password: string, payload: TStudent) => {
 
     // session-2
     const createStudent = await Student.create([payload], { session });
+    console.log({ createStudent });
     if (!createStudent) {
       throw new AppError(httpStatus.BAD_REQUEST, "Student create faild!");
     }
@@ -54,9 +63,10 @@ const createStudent = async (password: string, payload: TStudent) => {
     await session.endSession();
 
     return createStudent;
-  } catch (err) {
+  } catch (err: any) {
     await session.abortTransaction();
     await session.endSession();
+    throw new AppError(httpStatus.BAD_REQUEST, err);
   }
 
   //   return newUser;
@@ -67,7 +77,8 @@ const createAdmin = async (password: string, payload: TStudent) => {
   const userData: Partial<TUser> = {};
   userData.password = password || config.default_password;
   userData.id = await generateAdminId();
-  userData.role = "admin";
+  userData.role = USER_ROLE?.admin;
+  userData.email = payload?.email;
 
   // session start
   const session = await mongoose.startSession();
@@ -109,8 +120,9 @@ const createFacultry = async (password: string, payload: TStudent) => {
   userData.password = password || config.default_password;
   userData.id = await generateFacultyId();
   // userData.id = "F-0001";
-  userData.role = "faculty";
-  console.log("faculty ------------------------");
+  userData.role = USER_ROLE?.faculty;
+  userData.email = payload?.email;
+  // console.log("faculty ------------------------");
   // session start
   const session = await mongoose.startSession();
   try {
@@ -151,9 +163,43 @@ const findAllUsers = async () => {
   return result;
 };
 
+// find all users
+const findMeUsers = async (token: string) => {
+  try {
+    // console.log({ token });
+    const accessSecretKey = config?.jwt_access_secret as string;
+    // const decoded = jwt.verify(token, accessSecretKey) as JwtPayload;
+    const decoded = tokenVerify(token, accessSecretKey) as JwtPayload;
+    // console.log({ decoded });
+
+    const id = decoded?.userId as string;
+    const role = decoded?.role as string;
+    let result = null;
+    // user find
+    // console.log("--------------------------");
+    // console.log(role === USER_ROLE.student);
+    if (role === USER_ROLE.student) {
+      result = await Student.findOne({ id });
+    }
+    // faculty find
+    if (role === USER_ROLE.faculty) {
+      result = await Faculty.findOne({ id });
+    }
+    // admin find
+    if (role === USER_ROLE.admin) {
+      result = await Admin.findOne({ id });
+    }
+    // console.log({ result });
+    return result;
+  } catch (err: any) {
+    throw new AppError(httpStatus.BAD_REQUEST, err);
+  }
+};
+
 export const UserServices = {
   createStudent,
   createAdmin,
   createFacultry,
   findAllUsers,
+  findMeUsers,
 };

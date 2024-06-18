@@ -36,7 +36,15 @@ const updatedCourseSchema = zod_1.z.object({
             .optional(),
     }),
 });
+// course-faculty validation schema
+const updatedCourseWithFacyltySchema = zod_1.z.object({
+    body: zod_1.z.object({
+        course: zod_1.z.string().optional(),
+        faculties: zod_1.z.array(zod_1.z.string()),
+    }),
+});
 exports.CourseValidation = {
     courseSchema,
     updatedCourseSchema,
+    updatedCourseWithFacyltySchema,
 };

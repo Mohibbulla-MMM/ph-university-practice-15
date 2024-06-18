@@ -64,7 +64,9 @@ export const studentSchema = new Schema<
       ref: "User",
     },
     bloodGroup: {
-      enum: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"],
+      type: String,
+      enum: { values: ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"] },
+      // required: true,
     },
     email: { type: String, required: true },
     contact: { type: String, required: true },

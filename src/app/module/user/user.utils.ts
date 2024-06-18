@@ -59,6 +59,7 @@ const findLastAdmin = async () => {
   // console.log(lastAdmin?.id.substring(2));
   return lastAdmin?.id ? lastAdmin.id.substring(2) : undefined;
 };
+
 const generateAdminId = async () => {
   let currentId = (0).toString();
   const lastAdminId = await findLastAdmin();
@@ -81,6 +82,7 @@ const findLastFaculty = async () => {
   // console.log(lastFaculty?.id.substring(2));
   return lastFaculty?.id ? lastFaculty.id.substring(2) : undefined;
 };
+
 const generateFacultyId = async () => {
   let currentId = (0).toString();
   const lastFacultyId = await findLastFaculty();

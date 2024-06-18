@@ -50,6 +50,7 @@ const userSchema = new mongoose_1.Schema({
 }, {
     timestamps: true,
 });
+// passwod hash
 userSchema.pre("save", function (next) {
     return __awaiter(this, void 0, void 0, function* () {
         const user = this;
@@ -57,16 +58,25 @@ userSchema.pre("save", function (next) {
         next();
     });
 });
+// password deleted before send
 userSchema.post("save", function (doc, next) {
     return __awaiter(this, void 0, void 0, function* () {
         doc.password = "";
         next();
     });
 });
-userSchema.pre("find", function (next) {
+// chaking user existe
+userSchema.statics.isUserExisteByCustomIdMethod = function (id) {
     return __awaiter(this, void 0, void 0, function* () {
-        //  console.log(this)
-        next();
+        const result = yield exports.User.findOne({ id });
+        return result;
     });
-});
+};
+// chaking user password
+userSchema.statics.isUserPasswordMatchMethod = function (plainTextPassword, hashedPassword) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const result = yield bcrypt_1.default.compare(plainTextPassword, hashedPassword);
+        return result;
+    });
+};
 exports.User = (0, mongoose_1.model)("User", userSchema);

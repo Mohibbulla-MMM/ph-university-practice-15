@@ -18,8 +18,9 @@ const AppError_1 = __importDefault(require("../../errors/AppError"));
 const academicDepartmentSchema = new mongoose_1.Schema({
     name: {
         type: String,
-        required: true,
         unique: true,
+        trim: true,
+        required: true,
     },
     academicFaculty: {
         type: mongoose_1.Schema.Types.ObjectId,

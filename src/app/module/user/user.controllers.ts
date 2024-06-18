@@ -50,9 +50,21 @@ const findAllUsers = catchAsync(async (req, res, next) => {
   });
 });
 
+// find all users
+const findMeUsers = catchAsync(async (req, res, next) => {
+  const token = req.headers?.authorization as string;
+  const result = await UserServices.findMeUsers(token);
+
+  sendRespons(res, {
+    message: "Find me success",
+    data: result,
+  });
+});
+
 export const UserControllers = {
   createStudent,
   createAdmin,
   createFacultry,
   findAllUsers,
+  findMeUsers,
 };
