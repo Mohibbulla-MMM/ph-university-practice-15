@@ -51,12 +51,23 @@ const findAllUsers = catchAsync(async (req, res, next) => {
 });
 
 // find all users
-const findMeUsers = catchAsync(async (req, res, next) => {
-  const token = req.headers?.authorization as string;
-  const result = await UserServices.findMeUsers(token);
+const findMe = catchAsync(async (req, res, next) => {
+  const { userId, role } = req.user;
+  const result = await UserServices.findMe(userId, role);
 
   sendRespons(res, {
     message: "Find me success",
+    data: result,
+  });
+});
+
+// find all users
+const changeUserStatus = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await UserServices.changeUserStatus(id, req.body);
+
+  sendRespons(res, {
+    message: "User Updated successfull",
     data: result,
   });
 });
@@ -66,5 +77,6 @@ export const UserControllers = {
   createAdmin,
   createFacultry,
   findAllUsers,
-  findMeUsers,
+  findMe,
+  changeUserStatus,
 };

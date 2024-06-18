@@ -18,6 +18,7 @@ const catchAsync_1 = __importDefault(require("../../utils/catchAsync"));
 const faculty_services_1 = require("./faculty.services");
 const sendRespons_1 = __importDefault(require("../../utils/sendRespons"));
 const getAllFaculty = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    console.log("cookie", req.cookies);
     const result = yield faculty_services_1.FacultyServices.getAllFaculty(req.query);
     (0, sendRespons_1.default)(res, {
         data: result,

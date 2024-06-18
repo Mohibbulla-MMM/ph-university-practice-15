@@ -55,9 +55,19 @@ const findAllUsers = (0, catchAsync_1.default)((req, res, next) => __awaiter(voi
         data: result,
     });
 }));
+// find all users
+const findMe = (0, catchAsync_1.default)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id, role } = req.user;
+    const result = yield user_services_1.UserServices.findMe(id, role);
+    (0, sendRespons_1.default)(res, {
+        message: "Find me success",
+        data: result,
+    });
+}));
 exports.UserControllers = {
     createStudent,
     createAdmin,
     createFacultry,
     findAllUsers,
+    findMe,
 };

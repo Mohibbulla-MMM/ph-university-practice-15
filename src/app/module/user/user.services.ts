@@ -164,16 +164,8 @@ const findAllUsers = async () => {
 };
 
 // find all users
-const findMeUsers = async (token: string) => {
+const findMe = async (id: string, role: string) => {
   try {
-    // console.log({ token });
-    const accessSecretKey = config?.jwt_access_secret as string;
-    // const decoded = jwt.verify(token, accessSecretKey) as JwtPayload;
-    const decoded = tokenVerify(token, accessSecretKey) as JwtPayload;
-    // console.log({ decoded });
-
-    const id = decoded?.userId as string;
-    const role = decoded?.role as string;
     let result = null;
     // user find
     // console.log("--------------------------");
@@ -196,10 +188,39 @@ const findMeUsers = async (token: string) => {
   }
 };
 
+//change User Status
+const changeUserStatus = async (id: string, payload: { status: string }) => {
+  const session = await mongoose.startSession();
+  try {
+    session.startTransaction();
+    // console.log(id, { payload });
+    const user = await User.findById(id).session(session);
+
+    const result = await User.findOneAndUpdate(
+      { _id: id },
+      {
+        status: payload.status,
+      },
+      {
+        new: true,
+        session,
+      }
+    );
+    await session.commitTransaction();
+    await session.endSession();
+    return result;
+  } catch (err: any) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw new AppError(httpStatus.BAD_REQUEST, err);
+  }
+};
+
 export const UserServices = {
   createStudent,
   createAdmin,
   createFacultry,
   findAllUsers,
-  findMeUsers,
+  findMe,
+  changeUserStatus,
 };

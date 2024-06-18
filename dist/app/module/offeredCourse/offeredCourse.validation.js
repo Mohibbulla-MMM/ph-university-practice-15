@@ -5,11 +5,9 @@ const zod_1 = require("zod");
 const offeredCourse_constant_1 = require("./offeredCourse.constant");
 // const ObjectId = z.instanceof(Types.ObjectId);
 const regex = /^(?:[01]\d|2[0-3]):[0-5]\d$/;
-
 const timeSchema = zod_1.z.string().regex(regex, {
     message: `invalid time formate. expected "HH:MM" in 24 hours formate.`,
 });
-
 const offeredCourseSchema = zod_1.z.object({
     body: zod_1.z
         .object({

@@ -23,13 +23,19 @@ const AppError_1 = __importDefault(require("../../errors/AppError"));
 const http_status_1 = __importDefault(require("http-status"));
 const admin_model_1 = require("../admin/admin.model");
 const faculty_model_1 = require("../faculty/faculty.model");
+const user_constant_1 = require("./user.constant");
 // create sutdent
 const createStudent = (password, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const userData = {};
-    userData.password = password || config_1.default.default_password;
+    userData.password = password || (config_1.default === null || config_1.default === void 0 ? void 0 : config_1.default.default_password);
     const admissionSemester = yield academicSemester_module_1.AcademicSemester.findById(payload.admissionSemester);
+    if (!admissionSemester) {
+        throw new AppError_1.default(http_status_1.default.NOT_FOUND, "Admision semester not found");
+    }
     userData.id = yield (0, user_utils_1.generateStudentId)(admissionSemester);
-    userData.role = "student";
+    userData.role = user_constant_1.USER_ROLE === null || user_constant_1.USER_ROLE === void 0 ? void 0 : user_constant_1.USER_ROLE.student;
+    userData.email = payload === null || payload === void 0 ? void 0 : payload.email;
+    console.log(userData.id);
     // session start
     const session = yield mongoose_1.default.startSession();
     try {
@@ -37,6 +43,7 @@ const createStudent = (password, payload) => __awaiter(void 0, void 0, void 0, f
         session.startTransaction();
         // session-1
         const newUser = yield user_model_1.User.create([userData], { session });
+        console.log({ newUser });
         if (!newUser.length) {
             throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "User create faild!");
         }
@@ -44,6 +51,7 @@ const createStudent = (password, payload) => __awaiter(void 0, void 0, void 0, f
         payload.user = newUser[0]._id;
         // session-2
         const createStudent = yield student_modules_1.Student.create([payload], { session });
+        console.log({ createStudent });
         if (!createStudent) {
             throw new AppError_1.default(http_status_1.default.BAD_REQUEST, "Student create faild!");
         }
@@ -54,6 +62,7 @@ const createStudent = (password, payload) => __awaiter(void 0, void 0, void 0, f
     catch (err) {
         yield session.abortTransaction();
         yield session.endSession();
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, err);
     }
     //   return newUser;
 });
@@ -62,7 +71,8 @@ const createAdmin = (password, payload) => __awaiter(void 0, void 0, void 0, fun
     const userData = {};
     userData.password = password || config_1.default.default_password;
     userData.id = yield (0, user_utils_1.generateAdminId)();
-    userData.role = "admin";
+    userData.role = user_constant_1.USER_ROLE === null || user_constant_1.USER_ROLE === void 0 ? void 0 : user_constant_1.USER_ROLE.admin;
+    userData.email = payload === null || payload === void 0 ? void 0 : payload.email;
     // session start
     const session = yield mongoose_1.default.startSession();
     try {
@@ -97,8 +107,9 @@ const createFacultry = (password, payload) => __awaiter(void 0, void 0, void 0, 
     userData.password = password || config_1.default.default_password;
     userData.id = yield (0, user_utils_1.generateFacultyId)();
     // userData.id = "F-0001";
-    userData.role = "faculty";
-    console.log("faculty ------------------------");
+    userData.role = user_constant_1.USER_ROLE === null || user_constant_1.USER_ROLE === void 0 ? void 0 : user_constant_1.USER_ROLE.faculty;
+    userData.email = payload === null || payload === void 0 ? void 0 : payload.email;
+    // console.log("faculty ------------------------");
     // session start
     const session = yield mongoose_1.default.startSession();
     try {
@@ -132,9 +143,35 @@ const findAllUsers = () => __awaiter(void 0, void 0, void 0, function* () {
     const result = yield user_model_1.User.find();
     return result;
 });
+// find all users
+const findMe = (id, role) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        let result = null;
+        // user find
+        // console.log("--------------------------");
+        // console.log(role === USER_ROLE.student);
+        if (role === user_constant_1.USER_ROLE.student) {
+            result = yield student_modules_1.Student.findOne({ id });
+        }
+        // faculty find
+        if (role === user_constant_1.USER_ROLE.faculty) {
+            result = yield faculty_model_1.Faculty.findOne({ id });
+        }
+        // admin find
+        if (role === user_constant_1.USER_ROLE.admin) {
+            result = yield admin_model_1.Admin.findOne({ id });
+        }
+        // console.log({ result });
+        return result;
+    }
+    catch (err) {
+        throw new AppError_1.default(http_status_1.default.BAD_REQUEST, err);
+    }
+});
 exports.UserServices = {
     createStudent,
     createAdmin,
     createFacultry,
     findAllUsers,
+    findMe,
 };

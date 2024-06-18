@@ -136,7 +136,7 @@ const updateCourseInToDB = (id, payload) => __awaiter(void 0, void 0, void 0, fu
             }
             // filter out the new course fields
             const newPreRequisites = preRequisiteCourses === null || preRequisiteCourses === void 0 ? void 0 : preRequisiteCourses.filter((el) => el.course && !el.isDeleted);
-            // console.log(newPreRequisites);
+            console.log(newPreRequisites);
             const newPreRequisiteCourses = yield course_model_1.Course.findByIdAndUpdate(id, {
                 $addToSet: {
                     preRequisiteCourses: { $each: newPreRequisites },

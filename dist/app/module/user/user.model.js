@@ -24,11 +24,20 @@ const userSchema = new mongoose_1.Schema({
     password: {
         type: String,
         maxlength: 20,
-        required: true,
+        select: 0,
+        // required: true,
+    },
+    email: {
+        type: String,
+        maxlength: 30,
+        unique: true,
     },
     needsPasswordChange: {
         type: Boolean,
         default: true,
+    },
+    passwordChangeAt: {
+        type: Date,
     },
     role: {
         type: String,
@@ -68,7 +77,15 @@ userSchema.post("save", function (doc, next) {
 // chaking user existe
 userSchema.statics.isUserExisteByCustomIdMethod = function (id) {
     return __awaiter(this, void 0, void 0, function* () {
-        const result = yield exports.User.findOne({ id });
+        const result = yield exports.User.findOne({ id }).select("+password");
+        return result;
+    });
+};
+// chaking user existe
+userSchema.statics.passwordHashMethod = function (password) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const salt = Number(config_1.default === null || config_1.default === void 0 ? void 0 : config_1.default.bcrypt_salt_round);
+        const result = yield bcrypt_1.default.hash(password, salt);
         return result;
     });
 };
@@ -78,5 +95,14 @@ userSchema.statics.isUserPasswordMatchMethod = function (plainTextPassword, hash
         const result = yield bcrypt_1.default.compare(plainTextPassword, hashedPassword);
         return result;
     });
+};
+// chaking user token time stamp method
+userSchema.statics.isJWTIssuedBeforePasswordChangeMethod = function (passwordChangeTimestamp, jwtIssuedTimestamp) {
+    console.log({ passwordChangeTimestamp }, { jwtIssuedTimestamp });
+    const passwordChangeTime = new Date(passwordChangeTimestamp).getTime() / 1000;
+    // console.log();
+    const result = passwordChangeTime > jwtIssuedTimestamp;
+    // console.log({ result });
+    return result;
 };
 exports.User = (0, mongoose_1.model)("User", userSchema);
