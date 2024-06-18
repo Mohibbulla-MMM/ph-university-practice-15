@@ -16,9 +16,7 @@ import { TAcademicSemester } from "../academicSemester/academicSemester.interfac
 import { Admin } from "../admin/admin.model";
 import { Faculty } from "../faculty/faculty.model";
 import { USER_ROLE } from "./user.constant";
-import jwt, { JwtPayload } from "jsonwebtoken";
-
-import { tokenVerify } from "../auth/auth.utils";
+import { sendImageToCloudinary } from "../../utils/sendImageToCloudinary";
 
 // create sutdent
 const createStudent = async (password: string, payload: TStudent) => {
@@ -40,6 +38,7 @@ const createStudent = async (password: string, payload: TStudent) => {
   // session start
   const session = await mongoose.startSession();
   try {
+    sendImageToCloudinary()
     // transaction start
     session.startTransaction();
     // session-1
