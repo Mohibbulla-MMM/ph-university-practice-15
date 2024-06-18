@@ -41,7 +41,7 @@ const presentAddressSchemaValidation = z.object({
 
 export const studentSchemaValidation = z.object({
   body: z.object({
-    password: z.string({ required_error: "password is required" }),
+    password: z.string({ required_error: "password is required" }).optional(),
     student: z.object({
       name: userNameSchemaValidation,
       bloodGroup: z
@@ -64,7 +64,7 @@ export const studentSchemaValidation = z.object({
       localGuardiant: localGuardiantSchemaValidation,
       permanentAddress: permanentAddressSchemaValidation,
       presentAddress: presentAddressSchemaValidation,
-      profileImage: z.string({ required_error: "Profile image is required" }),
+      // profileImage: z.string({ required_error: "Profile image is required" }),
       admissionSemester: z.string(),
       isDeleted: z.boolean().default(false),
     }),

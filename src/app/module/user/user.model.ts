@@ -92,7 +92,7 @@ userSchema.statics.isJWTIssuedBeforePasswordChangeMethod = function (
   passwordChangeTimestamp: Date,
   jwtIssuedTimestamp: number
 ) {
-  console.log({ passwordChangeTimestamp }, { jwtIssuedTimestamp });
+  // console.log({ passwordChangeTimestamp }, { jwtIssuedTimestamp });
   const passwordChangeTime = new Date(passwordChangeTimestamp).getTime() / 1000;
 
   // console.log();
